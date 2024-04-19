@@ -43,29 +43,37 @@ const loadLogin = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
+        // Ensure that email and password are present in the request body
+        const { email, password } = req.body;
 
-        const userData = await User.findOne({
-            email: email
-        });
+        // Find the user by email
+        const userData = await User.findOne({ email: email });
 
         if (userData) {
+            // If user exists, compare passwords
             const passwordMatch = await bcrypt.compare(password, userData.password);
             if (passwordMatch) {
+                // If passwords match, set user data in session
                 req.session.user = userData;
+                // Redirect to the dashboard page
                 res.redirect('/dashboard');
             } else {
+                // If passwords don't match, render login page with error message
                 res.render('login', { message: 'Email and password are incorrect' });
             }
         } else {
+            // If user doesn't exist, render login page with error message
             res.render('login', { message: 'Email and password are incorrect' });
         }
     } catch (error) {
-        console.log(error.message);
-        res.status(500).send('Internal Server Error');
+        // Log specific error message for debugging
+        console.log('Error in login:', error.message);
+        // Send a more informative error response to the client
+        res.status(500).send('Login failed. Please try again later.');
     }
 };
+
+
 
 const logout = async (req, res) => {
     try {
@@ -79,7 +87,10 @@ const logout = async (req, res) => {
 
 const loadDashboard = async (req, res) => {
     try {
-        res.render('dashboard', { user: req.session.user });
+       const users= await User.find({ _id: {$nin:[req.session.user._id]}});
+     res.render('dashboard', { user: req.session.user, users:users });
+
+
     } catch (error) {
         console.log(error.message);
         res.status(500).send('Internal Server Error');

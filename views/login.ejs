@@ -16,21 +16,18 @@
     </style>
 </head>
 <body>
-
-    <%
-if(typeof message !== 'undefined'){
-    %>
+    <!-- If there's a message (e.g., login error), display it -->
+    <% if (typeof message !== 'undefined') { %>
     <h1 style="color: red;">
         <%= message %>
     </h1>
-    <%
-}
-%>
-
+    <% }
+     %>
 
     <div class="container">
         <div class="login-container">
             <h2 class="text-center mb-4">Login</h2>
+            <!-- Login form with email and password fields -->
             <form action="" method="post">
                 <div class="form-group">
                     <label for="email">Email address</label>
@@ -40,8 +37,10 @@ if(typeof message !== 'undefined'){
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
                 </div>
+                <!-- Submit button for the login form -->
                 <button type="submit" class="btn btn-primary btn-block">Login</button>
             </form>
+            <!-- Link to registration page -->
             <p class="text-center mt-3">Don't have an account? <a href="/register">Register</a></p>
         </div>
     </div>
