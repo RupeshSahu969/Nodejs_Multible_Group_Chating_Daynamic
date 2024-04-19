@@ -1,16 +1,18 @@
+// userRoute.js
+
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const path = require("path");
 const multer = require("multer");
 const userController = require("../controllers/userController");
-
-const session=require('express-session');
-const {SESSION_SECRET}=process.env;
-
+const session = require('express-session');
+const { SESSION_SECRET } = process.env;
 
 const userRoute = express();
-userRoute.use(session({secret:SESSION_SECRET}));
+
+// Session middleware
+userRoute.use(session({ secret: SESSION_SECRET }));
+
 // Body parsing middleware
 userRoute.use(bodyParser.json());
 userRoute.use(bodyParser.urlencoded({ extended: true }));
@@ -35,24 +37,22 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const auth=require('../middlewares/auth');
-
+// Authentication middleware
+const auth = require('../middlewares/auth');
 
 // Routes
 userRoute.get("/register", userController.registerLoad);
 userRoute.post("/register", upload.single("image"), userController.register);
 
-userRoute.get('/',auth.isLogout,userController.loadLogin)
-userRoute.post('/',userController.login)
-userRoute.get('/logout',auth.isLogin,userController.logout)
+userRoute.get('/', auth.isLogout, userController.loadLogin);
+userRoute.post('/', userController.login);
+userRoute.get('/logout', auth.isLogin, userController.logout);
 
-userRoute.get('/dashboard',auth.isLogin,userController.loadDashboard)
+userRoute.get('/dashboard', auth.isLogin, userController.loadDashboard);
 
-userRoute.get('*', function(req,res){
+// Catch-all route
+userRoute.get('*', function(req, res) {
     res.redirect('/');
-
-})
-
-
+});
 
 module.exports = userRoute;

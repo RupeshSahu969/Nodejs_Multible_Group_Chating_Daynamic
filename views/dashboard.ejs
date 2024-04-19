@@ -1,10 +1,81 @@
-<h1>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Document</title>
+    <style>
+        .maindiv {
+            margin-left: 22%;
+            margin-top: -45%;
+        }
+        /* Added CSS for sidebar */
+        .sidebar {
+            width: 22%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: lightgray;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        /* Added CSS for active user in the sidebar */
+        .active-user {
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <% include('layout/header.ejs') %>
 
-Hello
-<%=
-user.name
-%>
+    <h2 class="">
+        <%= user.name %>
+    </h2>
 
-</h1>
+  
 
-<a href="/logout">Logout</a>
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="list-group">
+                <% if(users.length > 0) { %>
+                    <% for(let i=0; i<users.length; i++) { %>
+                        <li class="list-group-item
+                         list-group-item-dark cursor-pointer user-list">
+                         <img src="<%= 'http://localhost:3000/' +users[i]['Image'] %>" alt="" width="50px"  height="50px" aria-readonly="50%" />
+                            <%= users[i].name %>    
+                       
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <h3 class="start-head">Click to Start the Chat</h3>
+            <div class="chat-section">
+                <div id="chat-container"></div>
+                <form action="" id="chat-form">
+                    <input type="text" name="message" placeholder="Enter message here" class="brouder" required>
+                    <input type="submit" value="Send Message" class="btn btn-primary">
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    <% include('layout/footer.ejs') %>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function() {
+            $('.user-list').click(function(){
+                $('.start-head').hide();
+                $('.chat-section').show();
+                $('.user-list').removeClass('active-user');
+                $(this).addClass('active-user');
+            });
+        })
+
+    </script>
+</body>
+</html>
