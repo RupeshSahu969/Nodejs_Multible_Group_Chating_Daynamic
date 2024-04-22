@@ -1,24 +1,40 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
+const express = require("express");
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-// Connect to MongoDB
-mongoose.connect('mongodb+srv://rupeshsahu969:rupesh@cluster0.br1ei8d.mongodb.net/TicketDB?retryWrites=true&w=majority&appName=Cluster0')
 
-const app = require("express")();
 
-// Mount userRoute on the root path
 const userRoute = require("./routes/userRoute");
-
-
-// app.get("/", (req, res) => {
-//     res.send("Hello World!");
-//   });
+const User = require('./models/userModel'); // Assuming UserModel is defined
 
 app.use("/", userRoute);
 
-const PORT = 3000;
+// Define namespace for user connections
+const userNamespace = io.of('/user-namespace');
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Handle socket connections
+userNamespace.on('connection', async function(socket) {
+  console.log('User Connected');
+
+  var userId = socket.handshake.auth.token;
+  await User.findByIdAndUpdate({_id: userId}, {$set:{is_online:'1'}});
+
+  userNamespace.emit('getOnlineUser', {user_id : userId});
+
+  socket.on('disconnect', async function() {
+      console.log('User Disconnected');
+      var userId = socket.handshake.auth.token;
+      await User.findByIdAndUpdate({_id: userId}, {$set:{is_online:'0'}});
+      
+      userNamespace.emit('getOfflineUser', {user_id : userId});
+  });
+});
+
+
+
+http.listen(3000, function() {
+    console.log('Server is running on port 3000');
 });

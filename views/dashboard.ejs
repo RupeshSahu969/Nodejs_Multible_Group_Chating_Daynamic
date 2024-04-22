@@ -6,24 +6,17 @@
     <link rel="stylesheet" href="css/style.css" />
     <title>Document</title>
     <style>
-        .maindiv {
-            margin-left: 22%;
-            margin-top: -45%;
+        /* Your existing styles here */
+
+        /* Added CSS for hiding and showing chat section */
+        .chat-section {
+            display: none;
         }
-        /* Added CSS for sidebar */
-        .sidebar {
-            width: 22%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background-color: lightgray;
-            overflow-y: auto;
-            padding: 20px;
+        .online-status {
+            color: green;
         }
-        /* Added CSS for active user in the sidebar */
-        .active-user {
-            background-color: lightblue;
+        .offline-status {
+            color: red;
         }
     </style>
 </head>
@@ -34,24 +27,36 @@
         <%= user.name %>
     </h2>
 
-  
-
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
                 <% if(users.length > 0) { %>
                     <% for(let i=0; i<users.length; i++) { %>
-                        <li class="list-group-item
-                         list-group-item-dark cursor-pointer user-list">
-                         <img src="<%= 'http://localhost:3000/' +users[i]['Image'] %>" alt="" width="50px"  height="50px" aria-readonly="50%" />
-                            <%= users[i].name %>    
+                        <li class="list-group-item list-group-item-dark cursor-pointer user-list">
+                            <img src="<%= 'http://localhost:3000/' +users[i]['Image'] %>" alt="" width="50px" height="50px" aria-readonly="50%" />
+                            <%= users[i].name %>
                        
+                       <%
+                            if(users[i]['is-online'] == 1)
+                            {
+                                %>
+                                <sub class="online-status" id="<%= users[i]['_id'] %>-status">Online</sub>
+                                <%
+
+                            }
+                            else{
+                                %>
+                                <sub class="offline-status" id="<%= users[i]['_id'] %>-status">Offline</sub>
+                                <%
+                            }
+                       %>
+
                         </li>
                     <% } %>
                 <% } %>
             </ul>
         </div>
-        <div class="col-md-9">
+        <div class="col-md-8">
             <h3 class="start-head">Click to Start the Chat</h3>
             <div class="chat-section">
                 <div id="chat-container"></div>
@@ -62,20 +67,55 @@
             </div>
         </div>
     </div>
-    </div>
+    
     <% include('layout/footer.ejs') %>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Establish socket connection
+        var sender_id= '<%= user._id %>'
+        var socket = io('/user-namespace',{
+            auth:{
+                token: '<%= user._id  %>'
+            }
+        });
 
+        // jQuery document ready function
         $(document).ready(function() {
-            $('.user-list').click(function(){
+            // Event handler for clicking on a user
+            $('.user-list').click(function() {
+                // Hide the start message
                 $('.start-head').hide();
+                // Show the chat section
                 $('.chat-section').show();
+                // Remove active class from all users
                 $('.user-list').removeClass('active-user');
+                // Add active class to the clicked user
                 $(this).addClass('active-user');
             });
-        })
+        });
 
+        // Update user online Status
+        socket.on('getOnlineUser', function(data) {
+            $('#' + data.user_id + '-status').text('Online');
+            $('#' + data.user_id + '-status').removeClass('offline-status').addClass('online-status');
+        });
+
+        // Update user offline status
+        socket.on('getOfflineUser', function(data) {
+            $('#' + data.user_id + '-status').text('Offline');
+            $('#' + data.user_id + '-status').addClass('offline-status').removeClass('online-status');
+        });
+
+        // Handle socket connection event
+        socket.on('connect', function() {
+            console.log('Connected to the server');
+        });
+
+        // Handle socket disconnection event
+        socket.on('disconnect', function() {
+            console.log('Disconnected from the server');
+        });
     </script>
 </body>
 </html>
