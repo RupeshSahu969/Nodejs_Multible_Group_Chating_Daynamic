@@ -8,7 +8,10 @@ const io = require('socket.io')(http);
 
 
 const userRoute = require("./routes/userRoute");
+
 const User = require('./models/userModel'); // Assuming UserModel is defined
+
+// const Chat=require('./models/chatModel');
 
 app.use("/", userRoute);
 
