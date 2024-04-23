@@ -5,20 +5,16 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
-
+mongoose.connect('mongodb+srv://rupeshsahu969:rupesh@cluster0.iixrcst.mongodb.net/Chhating?retryWrites=true&w=majority&appName=Cluster0')
 
 const userRoute = require("./routes/userRoute");
-
-const User = require('./models/userModel'); // Assuming UserModel is defined
-
-// const Chat=require('./models/chatModel');
+const User = require('./models/userModel');
+const Chat=require('./models/chatModel');
 
 app.use("/", userRoute);
 
-// Define namespace for user connections
 const userNamespace = io.of('/user-namespace');
 
-// Handle socket connections
 userNamespace.on('connection', async function(socket) {
   console.log('User Connected');
 
@@ -34,9 +30,30 @@ userNamespace.on('connection', async function(socket) {
       
       userNamespace.emit('getOfflineUser', {user_id : userId});
   });
+
+  // Handle new chat messages
+  socket.on('newChat', function(data) {
+    socket.broadcast.emit('loadNewChat', data);
+  });
+
+// load old chats
+
+socket.on('existsChat',async function(data){
+  var chats = await Chat.find({ $or:[
+    {sender_id: data.sender_id, receiver_id: data.receiver_id},
+
+    {sender_id: data.receiver_id, receiver_id: data.sender_id},
+
+  ] })
+
+  socket.emit('loadChats' , {chats:chats});
+
+
+})
+
+
+
 });
-
-
 
 http.listen(3000, function() {
     console.log('Server is running on port 3000');
