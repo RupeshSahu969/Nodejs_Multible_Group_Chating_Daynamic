@@ -49,7 +49,7 @@ userRoute.post('/', userController.login);
 userRoute.get('/logout', auth.isLogin, userController.logout);
 
 userRoute.get('/dashboard', auth.isLogin, userController.loadDashboard);
-
+ userRoute.post('/save-chat', userController.saveChat);
 // Catch-all route
 userRoute.get('*', function(req, res) {
     res.redirect('/');

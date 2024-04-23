@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css" />
-    <title>Document</title>
+    <title>Chat App</title>
     <style>
         /* Your existing styles here */
 
@@ -17,6 +17,16 @@
         }
         .offline-status {
             color: red;
+        }
+        .current-user-chat {
+            text-align: right;
+            margin: 10px;
+            color: black;
+        }
+        .distance-user-chat {
+            text-align: left;
+            margin: 10px;
+            color: black;
         }
     </style>
 </head>
@@ -32,24 +42,15 @@
             <ul class="list-group">
                 <% if(users.length > 0) { %>
                     <% for(let i=0; i<users.length; i++) { %>
-                        <li class="list-group-item list-group-item-dark cursor-pointer user-list">
-                            <img src="<%= 'http://localhost:3000/' +users[i]['Image'] %>" alt="" width="50px" height="50px" aria-readonly="50%" />
+                        <li class="list-group-item list-group-item-dark cursor-pointer user-list" data-id="<%= users[i]._id %>">
+                            <img src="<%= 'http://localhost:3000/' + users[i].Image %>" alt="" width="50px" height="50px" aria-readonly="50%" />
                             <%= users[i].name %>
                        
-                       <%
-                            if(users[i]['is-online'] == 1)
-                            {
-                                %>
-                                <sub class="online-status" id="<%= users[i]['_id'] %>-status">Online</sub>
-                                <%
-
-                            }
-                            else{
-                                %>
-                                <sub class="offline-status" id="<%= users[i]['_id'] %>-status">Offline</sub>
-                                <%
-                            }
-                       %>
+                            <% if(users[i].is_online === 1) { %>
+                                <sub class="online-status" id="<%= users[i]._id %>-status">Online</sub>
+                            <% } else { %>
+                                <sub class="offline-status" id="<%= users[i]._id %>-status">Offline</sub>
+                            <% } %>
 
                         </li>
                     <% } %>
@@ -59,9 +60,11 @@
         <div class="col-md-8">
             <h3 class="start-head">Click to Start the Chat</h3>
             <div class="chat-section">
-                <div id="chat-container"></div>
+                <div id="chat-container">
+                    <!-- Chat messages will be displayed here -->
+                </div>
                 <form action="" id="chat-form">
-                    <input type="text" name="message" placeholder="Enter message here" class="brouder" required>
+                    <input type="text" name="message" id="message" placeholder="Enter message here" class="brouder" required>
                     <input type="submit" value="Send Message" class="btn btn-primary">
                 </form>
             </div>
@@ -72,30 +75,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Establish socket connection
-        var sender_id= '<%= user._id %>'
-        var socket = io('/user-namespace',{
-            auth:{
-                token: '<%= user._id  %>'
+        // Socket.io connection
+        var socket = io('/user-namespace', {
+            auth: {
+                token: '<%= user._id %>'
             }
         });
 
-        // jQuery document ready function
+        // Define sender_id globally
+        var sender_id;
+
         $(document).ready(function() {
             // Event handler for clicking on a user
             $('.user-list').click(function() {
-                // Hide the start message
+                var userId = $(this).data('id');
+                receiver_id = userId;
+
                 $('.start-head').hide();
-                // Show the chat section
                 $('.chat-section').show();
-                // Remove active class from all users
                 $('.user-list').removeClass('active-user');
-                // Add active class to the clicked user
                 $(this).addClass('active-user');
             });
         });
 
-        // Update user online Status
+        // Update user online status
         socket.on('getOnlineUser', function(data) {
             $('#' + data.user_id + '-status').text('Online');
             $('#' + data.user_id + '-status').removeClass('offline-status').addClass('online-status');
@@ -107,12 +110,46 @@
             $('#' + data.user_id + '-status').addClass('offline-status').removeClass('online-status');
         });
 
-        // Handle socket connection event
+        // Save chat function
+        $('#chat-form').submit(function(event) {
+            event.preventDefault();
+
+            var message = $('#message').val();
+
+            // Use sender_id here
+            $.ajax({
+                url: '/save-chat',
+                type: 'POST',
+                data: {
+                    sender_id: sender_id,
+                    receiver_id: receiver_id,
+                    message: message // Include message field
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log(response.data.message);
+                        $('#message').val('');
+                        let chat = response.data.message;
+                        let html = `
+                            <div class="current-user-chat">
+                                <h5>${chat}</h5>
+                            </div>
+                        `;
+                        // Append the chat message to the chat container
+                        $('#chat-container').append(html);
+                    } else {
+                        alert(response.msg); // Corrected typo in alert message
+                    }
+                }
+            });
+        });
+
+        // Socket connection event
         socket.on('connect', function() {
             console.log('Connected to the server');
         });
 
-        // Handle socket disconnection event
+        // Socket disconnection event
         socket.on('disconnect', function() {
             console.log('Disconnected from the server');
         });
