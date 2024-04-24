@@ -48,10 +48,11 @@ socket.on('existsChat',async function(data){
 
   socket.emit('loadChats' , {chats:chats});
 
-
 })
 
-
+  socket.on('chatDeleted' ,function(id){
+    socket.broadcast.emit('chatMessageDelete',id)
+  });
 
 });
 

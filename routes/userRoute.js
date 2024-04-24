@@ -50,6 +50,11 @@ userRoute.get('/logout', auth.isLogin, userController.logout);
 
 userRoute.get('/dashboard', auth.isLogin, userController.loadDashboard);
  userRoute.post('/save-chat', userController.saveChat);
+ userRoute.post('/delete-chat', userController.deleteChat);
+ userRoute.post('/update-chat', userController.updateChat);
+
+
+
 // Catch-all route
 userRoute.get('*', function(req, res) {
     res.redirect('/');
