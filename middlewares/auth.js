@@ -3,9 +3,9 @@
 const isLogin = async (req, res, next) => {
   try {
     if (req.session.user) {
-      next(); // Proceed to the next middleware or route handler
+      next(); 
     } else {
-      res.redirect("/"); // Redirect to login page if not logged in
+      res.redirect("/"); 
     }
   } catch (error) {
     console.log(error.message);
@@ -15,9 +15,9 @@ const isLogin = async (req, res, next) => {
 const isLogout = async (req, res, next) => {
   try {
     if (req.session.user) {
-      res.redirect("/dashboard"); // Redirect to dashboard if already logged in
+      res.redirect("/dashboard"); 
     } else {
-      next(); // Proceed to the next middleware or route handler
+      next(); 
     }
   } catch (error) {
     console.log(error.message);
