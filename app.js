@@ -54,6 +54,11 @@ socket.on('existsChat',async function(data){
     socket.broadcast.emit('chatMessageDelete',id)
   });
 
+  socket.on('chatUpdated' ,function(data){
+    socket.broadcast.emit('chatMessageUpdated',data)
+  });
+
+
 });
 
 http.listen(3000, function() {

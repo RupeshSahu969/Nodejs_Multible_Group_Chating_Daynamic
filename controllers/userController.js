@@ -118,6 +118,7 @@ const updateChat =async(req,res)=>{
         })
 
 
+        
         res.status(200).send({success:true});
 
     } catch (error) {

@@ -255,15 +255,14 @@
                 }
                 html += `
                 <div class="${addClass}" id='${chats[x]._id}'>
-    <h5>
-        <span>${chats[x]['message']}</span>
-        ${chats[x]['sender_id'] == sender_id ? `
-            <i class="fa fa-trash" aria-hidden="true" data-id='${chats[x]._id}' data-toggle="modal" data-target="#deleteChatModal"></i>
-            <i class="fas fa-edit" aria-hidden="true" data-id='${chats[x]._id}' data-msg='${chats[x]['message']}' data-toggle="modal" data-target="#editChatModal"></i>
-        ` : ''}
-    </h5>
-</div>
-
+                    <h5>
+                        <span>${chats[x]['message']}</span>
+                        ${chats[x]['sender_id'] == sender_id ? `
+                            <i class="fa fa-trash" aria-hidden="true" data-id='${chats[x]._id}' data-toggle="modal" data-target="#deleteChatModal"></i>
+                            <i class="fas fa-edit" aria-hidden="true" data-id='${chats[x]._id}' data-msg='${chats[x]['message']}' data-toggle="modal" data-target="#editChatModal"></i>
+                        ` : ''}
+                    </h5>
+                </div>
                 `;
             }
             $('#chat-container').append(html);
@@ -312,6 +311,46 @@ $(document).on('click', '.fa-trash', function() {
             $('#'+id).remove();
         })
 
+        // update message post
+
+        $(document).on('click', '.fa-edit', function(){
+            var id = $(this).attr('data-id');
+            var message = $(this).attr('data-msg');
+            $('#edit-message-id').val(id);
+            $('#update-message').val(message);
+        });
+//update message post
+
+$('#update-chat-form').submit(function(event) {
+            event.preventDefault(); // Prevent form submission
+       
+            var id=$('#edit-message-id').val();
+            var msg=$('#update-message').val();
+
+            $.ajax({
+                url:'/update-chat',
+                type:'POST',
+                data:{id:id,message:msg },
+                success:function(res){
+                    if(res.success == true){
+                        
+                        $('#editChatModal').modal('hide')
+                        $('#'+id).find('span').text(msg);
+                        $('#'+id).find('.fa-edit').attr('data-msg',msg);
+                        socket.emit('chatUpdated' , {id:id, message:msg})
+                    }
+                    else{
+                        alert(res.msg)
+                    }
+                }
+            })
+       
+        });
+
+        socket.on('chatMessageUpdated', function(data)
+        {
+            $('#'+data.id).find('span').text(data.message);
+        })
 
         // Socket connection event
         socket.on('connect', function() {
@@ -323,12 +362,6 @@ $(document).on('click', '.fa-trash', function() {
             console.log('Disconnected from the server');
         });
 
-
-       
-
-       
-
-       
     </script>
 </body>
 </html>
