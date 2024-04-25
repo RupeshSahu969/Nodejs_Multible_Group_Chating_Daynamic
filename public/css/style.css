@@ -8195,7 +8195,7 @@ h1, h2, h3, h4, h5,
   min-width: 250px;
   max-width: 250px;
   min-height: 100vh;
-  background: #212121;
+  background: blue;
   color: #fff;
   -webkit-transition: all 0.3s;
   -o-transition: all 0.3s;
@@ -8336,6 +8336,7 @@ a[data-toggle="collapse"] {
   .cursor-pointer{
     cursor: pointer;
   }
+  
 #chat-container{
   background-color: lightblue;
 width: 100%;
