@@ -25,6 +25,8 @@ const register = async (req, res) => {
             password: passwordHash
         });
 
+        
+
         await user.save();
 
         res.render('register', { message: "You have successfully registered" });
