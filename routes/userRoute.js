@@ -1,4 +1,5 @@
 const express = require("express");
+
 const bodyParser = require("body-parser");
 const path = require("path");
 const multer = require("multer");
@@ -10,6 +11,7 @@ const userRoute = express();
 
 // Session middleware
 userRoute.use(session({
+    
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: true
@@ -17,10 +19,12 @@ userRoute.use(session({
 
 // Body parsing middleware
 userRoute.use(bodyParser.json());
+
 userRoute.use(bodyParser.urlencoded({ extended: true }));
 
 // Set view engine and views directory
 userRoute.set("view engine", "ejs");
+
 userRoute.set("views", path.join(__dirname, "../views"));
 
 // Serve static files from the "public" directory
@@ -44,6 +48,7 @@ const auth = require('../middlewares/auth');
 
 // Routes
 userRoute.get("/register", userController.registerLoad);
+
 userRoute.post("/register", upload.single("image"), userController.register);
 
 userRoute.get('/', auth.isLogout, userController.loadLogin);
