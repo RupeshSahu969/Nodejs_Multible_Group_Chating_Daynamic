@@ -10,7 +10,6 @@ const http = require('http').Server(app);
 
 const io = require('socket.io')(http);
 
-mongoose.connect('mongodb+srv://rupeshsahu969:rupesh@cluster0.iixrcst.mongodb.net/Chhating?retryWrites=true&w=majority&appName=Cluster0')
 
 const userRoute = require("./routes/userRoute");
 
