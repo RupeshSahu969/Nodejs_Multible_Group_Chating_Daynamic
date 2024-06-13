@@ -16,9 +16,11 @@ app.use("/", userRoute);
 const userNamespace = io.of('/user-namespace');
 
 userNamespace.on('connection', async function(socket) {
+
   console.log('User Connected');
 
   var userId = socket.handshake.auth.token;
+
   await User.findByIdAndUpdate({_id: userId}, {$set:{is_online:'1'}});
 
   userNamespace.emit('getOnlineUser', {user_id : userId});
@@ -31,7 +33,7 @@ userNamespace.on('connection', async function(socket) {
       userNamespace.emit('getOfflineUser', {user_id : userId});
   });
 
-  // Handle new chat messages
+  
   socket.on('newChat', function(data) {
     socket.broadcast.emit('loadNewChat', data);
   });

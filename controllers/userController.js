@@ -3,13 +3,16 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 const Chat = require('../models/chatModel');
 
+
 const registerLoad = async (req, res) => {
+
     try {
         res.render('register');
     } catch (error) {
         console.error('Error in registerLoad:', error);
         res.status(500).send('Internal Server Error');
-    }
+    } 
+
 };
 
 const register = async (req, res) => {

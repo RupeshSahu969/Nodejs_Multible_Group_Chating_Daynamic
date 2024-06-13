@@ -1,5 +1,3 @@
-// userRoute.js
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -10,18 +8,14 @@ const { SESSION_SECRET } = process.env;
 
 const userRoute = express();
 
-// Session middleware
 userRoute.use(session({ secret: SESSION_SECRET }));
 
-// Body parsing middleware
 userRoute.use(bodyParser.json());
 userRoute.use(bodyParser.urlencoded({ extended: true }));
 
-// Set view engine and views directory
 userRoute.set("view engine", "ejs");
 userRoute.set("views", path.join(__dirname, "../views"));
 
-// Serve static files from the "public" directory
 userRoute.use(express.static("public"));
 
 // Multer configuration for file uploads
